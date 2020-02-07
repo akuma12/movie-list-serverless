@@ -1,0 +1,4 @@
+requests==2.22.0
+flask==1.1.1
+dynamorm==0.10.0
+marshmallow==3.4.0

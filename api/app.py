@@ -6,11 +6,15 @@ from api.models.movie import Movie
 
 app = Flask(__name__)
 
+# Create the DynamoDB table if it doesn't exist
 if not Movie.Table.exists:
   Movie.Table.create_table(wait=True)
 
 @app.route('/movies', methods=['GET'])
 def list_movies():
+  """ Retrieve all movies from the table.
+  Optionally sort by specifying query params sort_column and sort_dir.
+  """
   sort_column = request.args.get('sort_column')
   sort_dir = request.args.get('sort_dir')
   result = {}
@@ -28,8 +32,9 @@ def list_movies():
 
   return Response(json.dumps(result), mimetype='application/json')
 
-@app.route('/movie/<string:title>', methods=['GET'])
+@app.route('/movies/<string:title>', methods=['GET'])
 def show_movie(title):
+  """ Retrieve a specific movie by title. """
   movie = Movie.get(title=title)
   if movie:
     return Response(json.dumps(movie.to_dict()), mimetype='application/json')
@@ -38,6 +43,7 @@ def show_movie(title):
 
 @app.route('/movies', methods=['POST'])
 def create_movie():
+  """ Create a new movie. """
   data = request.get_json()
   try:
     movie = Movie(**data)
@@ -49,8 +55,9 @@ def create_movie():
   except ValidationError as e:
     return Response(json.dumps(e.errors), mimetype='application/json', status=400)
 
-@app.route('/movie/<string:title>', methods=['PUT', 'PATCH'])
+@app.route('/movies/<string:title>', methods=['PUT', 'PATCH'])
 def update_movie(title):
+  """ Update a movie. """
   try:
     data = request.get_json(force=True)
   except json.decoder.JSONDecodeError as e:
@@ -67,8 +74,9 @@ def update_movie(title):
   except ValidationError as e:
     return Response(json.dumps(e.errors), mimetype='application/json', status=400)
 
-@app.route('/movie/<string:title>', methods=['DELETE'])
+@app.route('/movies/<string:title>', methods=['DELETE'])
 def delete_movie(title):
+  """ Delete a movie. """
     movie = Movie.get(title=title)
     if movie:
       movie.delete()

@@ -9,6 +9,7 @@ plugins:
 
 custom:
   tableName: 'movies-table-${self:provider.stage}'
+  omdbApiParam: 'OMDBApiKey'
   wsgi:
     app: api.app.app
     packRequirements: false
@@ -19,13 +20,24 @@ custom:
       migrate: true
     stages:
       - dev
+      - prod
 
 provider:
   name: aws
   runtime: python3.8
   stage: dev
   region: us-east-1
+  apiKeys:
+    - testKey
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+      Resource:
+        - "arn:aws:ssm:*:*:parameter/${self:custom.omdbApiParam}"
+    - Effect: Allow
+      Action: dynamodb:ListTables
+      Resource: "*"
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -39,13 +51,30 @@ provider:
         - { "Fn::GetAtt": ["MoviesDynamoDBTable", "Arn" ] }
   environment:
     MOVIES_TABLE: ${self:custom.tableName}
+    OMDB_API_PARAM: ${self:custom.omdbApiParam}
 
 functions:
   app:
     handler: wsgi_handler.handler
     events:
-      - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http:
+          path: movies
+          method: get
+      - http:
+          path: movies/{proxy+}
+          method: get
+      - http:
+          path: movies
+          method: post
+          private: true
+      - http:
+          path: movies/{proxy+}
+          method: put
+          private: true
+      - http:
+          path: movies/{proxy+}
+          method: delete
+          private: true
 
 resources:
   Resources:

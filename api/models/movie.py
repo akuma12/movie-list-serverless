@@ -1,11 +1,13 @@
 import os
 import requests
 import json
+import boto3
 from dynamorm import DynaModel
 from marshmallow import fields, validate
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
-OMDB_API_KEY = os.environ.get('OMDB_API_KEY')
+OMDB_API_PARAM = os.environ.get('OMDB_API_PARAM')
+SSM = boto3.client('ssm')
 
 class Movie(DynaModel):
 
@@ -50,9 +52,22 @@ class Movie(DynaModel):
     )
     poster = fields.Url()
 
+  def get_omdb_api_key(self):
+    """ Get the OMDB API Key from Parameter Store """
+    try:
+      api_key_response = SSM.get_parameter(name=OMDB_API_PARAM)
+      if api_key_response:
+        return api_key_response['Parameter']['Value']
+    except Exception:
+      return None
+
+    return None
+
   def get_omdb_poster(self):
-    if OMDB_API_KEY:
-      omdb_url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={self.title}"
+    """ Get the Poster image from OMDB """
+    omdb_api_key = self.get_omdb_api_key()
+    if omdb_api_key:
+      omdb_url = f"http://www.omdbapi.com/?apikey={omdb_api_key}&t={self.title}"
       omdb_movie_response = requests.get(omdb_url)
       if omdb_movie_response.ok:
         try:

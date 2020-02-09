@@ -44,7 +44,7 @@ def test_create_movie(client):
 
 def test_get_movie(client):
   """Get a specific movie"""
-  rv = client.get('/movie/Top%20Gun', content_type="application/json")
+  rv = client.get('/movies/Top%20Gun', content_type="application/json")
 
   response_data = rv.json
 
@@ -65,7 +65,7 @@ def test_update_movie(client):
     "rating": 5
   }
 
-  rv = client.put('/movie/Top%20Gun', data=json.dumps(data), content_type="application/json")
+  rv = client.put('/movies/Top%20Gun', data=json.dumps(data), content_type="application/json")
 
   response_data = rv.json
 
@@ -81,9 +81,9 @@ def test_update_movie(client):
 
 def test_delete_movie(client):
   """Test deleting a movie"""
-  rv = client.delete('/movie/Top%20Gun', content_type="application/json")
+  rv = client.delete('/movies/Top%20Gun', content_type="application/json")
 
-  get_rv = client.get('/movie/Top%20Gun', content_type="application/json")
+  get_rv = client.get('/movies/Top%20Gun', content_type="application/json")
 
   assert rv.status == '204 NO CONTENT'
   assert get_rv.status == '404 NOT FOUND'
@@ -91,5 +91,5 @@ def test_delete_movie(client):
 
 def test_404(client):
   """Make sure we get a 404 on a non-existent movie"""
-  rv = client.get('/movie/FooBar', content_type="application/json")
+  rv = client.get('/movies/FooBar', content_type="application/json")
   assert rv.status == '404 NOT FOUND'

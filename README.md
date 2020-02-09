@@ -68,3 +68,7 @@ Authentication:
   x-api-key: <api_key>
 Deletes a movie
 ```
+
+### Testing
+`pip install pytest`
+Run `pytest` from the root directory

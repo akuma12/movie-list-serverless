@@ -77,7 +77,7 @@ def update_movie(title):
 @app.route('/movies/<string:title>', methods=['DELETE'])
 def delete_movie(title):
   """ Delete a movie. """
-    movie = Movie.get(title=title)
-    if movie:
-      movie.delete()
-    return Response("{}", mimetype='application/json', status=204)
+  movie = Movie.get(title=title)
+  if movie:
+    movie.delete()
+  return Response("{}", mimetype='application/json', status=204)

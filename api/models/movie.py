@@ -55,10 +55,11 @@ class Movie(DynaModel):
   def get_omdb_api_key(self):
     """ Get the OMDB API Key from Parameter Store """
     try:
-      api_key_response = SSM.get_parameter(name=OMDB_API_PARAM)
+      api_key_response = SSM.get_parameter(Name=OMDB_API_PARAM)
       if api_key_response:
         return api_key_response['Parameter']['Value']
-    except Exception:
+    except Exception as e:
+      print(f"Could not retrieve API key {e}")
       return None
 
     return None

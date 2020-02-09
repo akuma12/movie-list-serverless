@@ -67,6 +67,9 @@ def update_movie(title):
 
   try:
     if movie:
+      poster = movie.get_omdb_poster()
+      if poster:
+        data['poster'] = poster
       movie.update(**data)
       return Response(json.dumps(movie.to_dict()), mimetype='application/json')
     else:
